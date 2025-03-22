@@ -6,4 +6,4 @@ services:
     startCommand: "python append_prediction.py"
     envVars:
       - key: GOOGLE_APPLICATION_CREDENTIALS
-        value: vertical-hook-454512-j7-923cfa34df58.json
+        value: service_account.json
