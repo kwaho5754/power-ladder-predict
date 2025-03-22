@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -6,5 +6,23 @@ app = Flask(__name__)
 def home():
     return "Hello, World!"
 
-if __name__ == "__main__":
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json()
+
+    # 예: data = {"좌삼짝": "짝", "우삼홀": "홀", "좌사홀": "홀", "우사짝": "짝"}
+    좌삼짝 = data.get('좌삼짝')
+    우삼홀 = data.get('우삼홀')
+    좌사홀 = data.get('좌사홀')
+    우사짝 = data.get('우사짝')
+
+    # 아주 간단한 테스트용 예측 로직 (나중에 머신러닝 모델로 교체)
+    if 좌삼짝 == '짝' and 우삼홀 == '홀':
+        prediction = '예측결과: 1위'
+    else:
+        prediction = '예측결과: 2위'
+
+    return jsonify({'result': prediction})
+
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
