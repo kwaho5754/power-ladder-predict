@@ -1,0 +1,28 @@
+import requests
+from bs4 import BeautifulSoup
+
+# 파워사다리 결과 페이지 URL
+url = "https://example.com/powerladder_results"  # 실제 URL로 변경
+
+# 웹페이지 요청
+response = requests.get(url)
+
+# 응답 확인
+if response.status_code == 200:
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    # 데이터가 있는 테이블 찾기 (예제: HTML 테이블에서 데이터 추출)
+    table = soup.find("table")  # 웹사이트 구조에 맞게 수정 필요
+    rows = table.find_all("tr") if table else []
+
+    data = []
+    for row in rows:
+        columns = row.find_all("td")
+        columns = [col.text.strip() for col in columns]
+        data.append(columns)
+
+    # 데이터 확인
+    for row in data:
+        print(row)
+else:
+    print("페이지 로딩 실패:", response.status_code)

@@ -1,0 +1,28 @@
+# 시스템 파일 무시
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 파이썬 관련 캐시 무시
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# 환경설정
+.env
+.venv/
+venv/
+
+# 로그 파일
+*.log
+
+# 대용량 설치 파일 및 실행 파일 무시
+*.exe
+*.zip
+*.msi
+*.torrent
+
+# 크롬 드라이버 같은 외부 도구
+chromedriver.exe
+chromedriver*
