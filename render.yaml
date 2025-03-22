@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: power-ladder-api
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: waitress-serve --port=10000 app:app
