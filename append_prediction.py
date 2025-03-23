@@ -1,30 +1,23 @@
 import os
 import json
 import gspread
-from google.oauth2.service_account import Credentials
-from googleapiclient.discovery import build
+from oauth2client.service_account import ServiceAccountCredentials
 
 def append_to_sheet(round_num, time_str, 좌삼짝, 우삼홀, 좌사홀, 우사짝):
-    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-    SPREADSHEET_ID = '1SyxM-7xx9miEdbYYxhp69YP9tRLHRA4BQpNOr1O9Q-o'
-    RANGE_NAME = '시트1!A1'
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 
-    # 환경 변수에서 JSON 문자열을 가져와 파싱
-    credentials_info = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_CONTENT"])
-    creds = Credentials.from_service_account_info(credentials_info, scopes=SCOPES)
+    # Render 환경변수에서 JSON을 문자열로 가져옴
+    creds_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_CONTENT")
+    if not creds_json:
+        raise ValueError("GOOGLE_APPLICATION_CREDENTIALS_CONTENT is not set")
 
-    service = build('sheets', 'v4', credentials=creds)
-    sheet = service.spreadsheets()
+    creds_dict = json.loads(creds_json)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    gc = gspread.authorize(creds)
 
-    values = [[round_num, time_str, 좌삼짝, 우삼홀, 좌사홀, 우사짝]]
-    body = {'values': values}
+    # ⬇ 여기 시트 ID와 탭 이름을 정확히 설정하세요!
+    SPREADSHEET_ID = "1SyxM-7xx9miEdbYYxhp69YP9tRLHRA4BQpNOr1O9Q-o"
+    sheet = gc.open_by_key(SPREADSHEET_ID).worksheet("시트1")
 
-    result = sheet.values().append(
-        spreadsheetId=SPREADSHEET_ID,
-        range=RANGE_NAME,
-        valueInputOption='RAW',
-        insertDataOption='INSERT_ROWS',
-        body=body
-    ).execute()
-
-    print("✅ Google Sheet 저장 완료:", result)
+    values = [round_num, time_str, 좌삼짝, 우삼홀, 좌사홀, 우사짝]
+    sheet.append_row(values)
