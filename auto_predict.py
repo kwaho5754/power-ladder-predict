@@ -2,10 +2,9 @@ import requests
 
 url = "https://power-ladder-predict.onrender.com/predict"
 headers = {"Content-Type": "application/json"}
-data = {}
+data = {
+    # 여기에 예측에 필요한 실제 데이터
+}
 
-try:
-    response = requests.post(url, headers=headers, json=data)
-    print("예측 요청 완료:", response.text)
-except Exception as e:
-    print("에러 발생:", e)
+response = requests.post(url, json=data, headers=headers, timeout=10)
+print("예측 요청 완료:", response.text)
