@@ -1,4 +1,4 @@
-name: Auto Predict Every 5 Minutes
+name: Auto Predict Every 5 Minutes v1
 
 on:
   schedule:
