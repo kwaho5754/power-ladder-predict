@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: power-ladder-api
-    env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python append_prediction.py"
-    envVars:
-      - key: GOOGLE_APPLICATION_CREDENTIALS_CONTENT
-        value: "{{secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON}}"
