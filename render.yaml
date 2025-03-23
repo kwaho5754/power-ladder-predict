@@ -6,17 +6,4 @@ services:
     startCommand: "python append_prediction.py"
     envVars:
       - key: GOOGLE_APPLICATION_CREDENTIALS_CONTENT
-        value: |
-          {
-            "type": "service_account",
-            "project_id": "vertical-hook-454512-j7",
-            "private_key_id": "xxxx",
-            "private_key": "-----BEGIN PRIVATE KEY-----\\nXXXX\\n-----END PRIVATE KEY-----\\n",
-            "client_email": "sheet-access@vertical-hook-454512-j7.iam.gserviceaccount.com",
-            "client_id": "xxxx",
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sheet-access%40vertical-hook-454512-j7.iam.gserviceaccount.com",
-            "universe_domain": "googleapis.com"
-          }
+        value: "{{secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON}}"
