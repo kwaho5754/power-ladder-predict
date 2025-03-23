@@ -17,7 +17,7 @@ def append_to_sheet(round_num, time_str, 좌삼짝, 우삼홀, 좌사홀, 우사
 
     # ⬇ 여기 시트 ID와 탭 이름을 정확히 설정하세요! (Sheet1로 변경)
     SPREADSHEET_ID = "1SyxM-7xx9miEdbYYxhp69YP9tRLHRA4BQpNOr1O9Q-o"
-    sheet = gc.open_by_key(SPREADSHEET_ID).worksheet("Sheet1")  # "시트1"을 "Sheet1"로 변경
+   sheet = gc.open("PowerLadderprediction").worksheet("sheet1") 
 
     values = [round_num, time_str, 좌삼짝, 우삼홀, 좌사홀, 우사짝]
     sheet.append_row(values)
