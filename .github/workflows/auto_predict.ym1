@@ -1,19 +1,18 @@
-name: Auto Predict Every 5 Minutes v1
+name: Auto Predict Every 5 Minutes
 
 on:
   schedule:
-    - cron: "*/5 * * * *"  # 5분마다 실행
-  workflow_dispatch:       # 수동 실행도 가능
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
 
 jobs:
-  run-predict:
+  predict:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
@@ -23,7 +22,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run prediction script
-        run: |
-          python auto_predict.py
+        run: python auto_predict.py
         env:
           GOOGLE_APPLICATION_CREDENTIALS_CONTENT: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_CONTENT }}
