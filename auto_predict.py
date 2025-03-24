@@ -8,7 +8,13 @@ from datetime import datetime
 # ► 예측 API 요청
 url = "https://power-ladder-predict.onrender.com/predict"
 response = requests.post(url, json={})  # 반드시 POST 요청
-result = response.json()  # JSON 파싱
+
+try:
+    result = response.json()  # JSON 파싱 시도
+except ValueError:
+    print("❌ 예측 API에서 JSON 응답을 받지 못했습니다.")
+    print("응답 내용:", response.text)
+    exit(1)
 
 # ► Google Sheets 인증
 json_content = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_CONTENT')
@@ -27,7 +33,7 @@ now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # ► 예측 결과 Google Sheets에 추가
 sheet.append_row([
-    "",               # 회차는 자동 계산 가능
+    "",               # 회차 비워두기 (또는 계산 가능)
     now,
     result["좌삼짝"],
     result["우삼홀"],
