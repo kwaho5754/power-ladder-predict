@@ -19,7 +19,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope
 client = gspread.authorize(creds)
 
 # ▶ 시트 열기
-spreadsheet = client.open("PowerLadder")         # ← 구글 시트 문서 이름
+spreadsheet = client.open("PowerLadderPrediction")         # ← 구글 시트 문서 이름
 sheet = spreadsheet.worksheet("예측결과")         # ← 시트 탭 이름 (예: '예측결과')
 
 # ▶ 시간 정보
