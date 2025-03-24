@@ -12,11 +12,10 @@ def append_to_sheet(round_num, time_str, 좌삼짝, 우삼홀, 좌사홀, 우사
 
     scopes = ['https://www.googleapis.com/auth/spreadsheets']
     credentials = Credentials.from_service_account_info(info, scopes=scopes)
-
     gc = gspread.authorize(credentials)
 
     spreadsheet_id = "1SyxM-7xx9miEdbYYxhp69YP9tRLHRA4BQpNOr1O9Q-o"  # 시트 ID
-    sheet = gc.open_by_key(spreadsheet_id).worksheet("Sheet1")  # 시트 이름 주의!
+    sheet = gc.open_by_key(spreadsheet_id).worksheet("예측결과")   # ✅ 수정된 부분
 
     values = [[round_num, time_str, 좌삼짝, 우삼홀, 좌사홀, 우사짝]]
     sheet.append_rows(values, value_input_option="RAW")
