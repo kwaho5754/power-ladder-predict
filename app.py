@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from append_prediction import append_to_sheet
 
@@ -43,6 +42,7 @@ def predict():
 
     prediction = f"1위: {rank_1}, 2위: {rank_2}, 3위: {rank_3}"
 
+    # 구글 시트에 저장
     append_to_sheet(round_num, time_str, 좌삼짝, 우삼홀, 좌사홀, 우사짝, rank_1, rank_2, rank_3)
 
     return jsonify({"result": prediction})
