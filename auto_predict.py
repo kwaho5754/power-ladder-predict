@@ -8,7 +8,7 @@ from datetime import datetime
 # ▶ 예측 API 요청
 url = "https://power-ladder-predict.onrender.com/predict"
 response = requests.post(url, json={})  # POST 요청 (중요!)
- result = response.text  # JSON 아님. 그냥 문자열   # 예: {'좌삼짝': 0.84, '우삼홀': 0.33, '좌사홀': 0.77, '우사짝': 0.25}
+result = response.text  # JSON 아님. 그냥 문자열   # 예: {'좌삼짝': 0.84, '우삼홀': 0.33, '좌사홀': 0.77, '우사짝': 0.25}
 
 # ▶ Google Sheets 인증
 json_content = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_CONTENT')
