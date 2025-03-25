@@ -1,21 +1,9 @@
 services:
   - type: web
-    name: power-ladder-predict  # ❗ Render 대시보드 이름과 일치하게!
+    name: power-ladder-api
     env: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     envVars:
-      - key: GOOGLE_APPLICATION_CREDENTIALS_CONTENT
-        value: |
-          {
-            "type": "service_account",
-            "project_id": "YOUR_PROJECT_ID",
-            ...
-          }
-
-jobs:
-  - name: auto-predict
-    type: cron
-    runtime: python
-    schedule: "*/5 * * * *"
-    command: python auto_predict.py
+      - key: SERVICE_ACCOUNT_FILE
+        value: service-account.json
