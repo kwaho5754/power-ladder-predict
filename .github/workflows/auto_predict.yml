@@ -2,12 +2,13 @@ name: Auto Predict Every 5 Minutes v1
 
 on:
   schedule:
-    - cron: "1-59/5 * * * *"  # 매 시 1분부터 5분 간격 (1, 6, 11, ..., 56)
-  workflow_dispatch:          # 수동 실행도 가능
+    - cron: "1-59/5 * * * *"  # 매 시 1분부터 5분 간격: 1, 6, 11, ..., 56분
+  workflow_dispatch:        # 수동 실행도 가능
 
 jobs:
   run-predict:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

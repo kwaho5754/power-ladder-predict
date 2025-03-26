@@ -5,12 +5,12 @@ from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 
-# ▶ 현재 시각 기준으로 라운드 및 시간 설정
+# ▶ 시간 자동 설정
 now = datetime.now()
 round_str = now.strftime("%Y-%m-%d-%H")
 time_str = now.strftime("%H:%M")
 
-# ▶ 예측에 사용할 입력 데이터 (예: 최근 결과 기반 분석 가능)
+# ▶ API 요청을 위한 데이터 구성
 payload = {
     "round": round_str,
     "time": time_str,
@@ -21,25 +21,21 @@ payload = {
 }
 
 # ▶ API 요청
-url = "https://power-ladder-predict.onrender.com/predict"
-response = requests.post(url, json=payload)
-
 try:
+    response = requests.post("https://power-ladder-predict.onrender.com/predict", json=payload)
     result = response.json()["result"]
-    print(f"✅ 예측 결과: {result}")
+    print("✅ 예측 결과:", result)
 except Exception as e:
-    print("❌ 예측 API에서 JSON 응답을 받지 못했습니다.")
+    print("❌ 예측 API 오류:", e)
     print("응답 내용:", response.text)
     exit(1)
 
-# ▶ 환경변수에서 서비스 계정 키 정보 읽기
+# ▶ 서비스 계정 키 환경변수 로드
 credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_CONTENT")
 if not credentials_json:
-    raise ValueError("GOOGLE_APPLICATION_CREDENTIALS_CONTENT is not set")
+    raise ValueError("환경변수 GOOGLE_APPLICATION_CREDENTIALS_CONTENT 없음")
 
 info = json.loads(credentials_json)
-
-# ▶ 인증 및 구글 시트 접속
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
@@ -47,11 +43,11 @@ scopes = [
 credentials = Credentials.from_service_account_info(info, scopes=scopes)
 gc = gspread.authorize(credentials)
 
-# ▶ 시트 ID 및 이름
+# ▶ 시트 열기
 spreadsheet_id = "1SyxM-7xx9miEdbYYxhp69YP9tRLHRA4BQpNOr1O9Q-o"
 sheet = gc.open_by_key(spreadsheet_id).worksheet("예측결과")
 
-# ▶ 시트에 추가할 행 구성
+# ▶ 시트에 결과 추가
 values = [[
     payload["round"],
     payload["time"],
@@ -59,9 +55,9 @@ values = [[
     payload["우삼홀"],
     payload["좌사홀"],
     payload["우사짝"],
-    result[0],
-    result[1],
-    result[2]
+    result.split(",")[0].split(":")[1].strip(),
+    result.split(",")[1].split(":")[1].strip(),
+    result.split(",")[2].split(":")[1].strip()
 ]]
 sheet.append_rows(values, value_input_option="RAW")
-print("📌 예측 결과가 Google Sheets에 저장되었습니다.")
+print("📌 Google Sheets에 저장 완료")
