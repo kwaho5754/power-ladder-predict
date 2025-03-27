@@ -1,36 +1,40 @@
 import json
 from collections import Counter
 
-# 예시 데이터 (실제에서는 크롤링이나 DB에서 불러오도록 구성 가능)
-# 형식: ['좌삼짝-우삼홀-좌사홀-우사짝', ...]
-past_patterns = [
-    '좌삼짝-우삼홀-좌사홀-우사짝',
+# 임의로 만든 예시 데이터: 실제로는 웹에서 수집한 결과를 여기에 넣으면 됩니다.
+recent_patterns = [
     '좌삼짝-우삼홀-좌사홀-우사짝',
     '우삼홀-좌삼짝-우사짝-좌사홀',
-    '좌삼짝-우삼홀-좌사홀-우사짝',
-    '우삼홀-좌삼짝-우사짝-좌사홀',
-    '좌삼짝-우삼홀-좌사홀-우사짝',
+    '좌사홀-우삼홀-좌삼짝-우사짝',
+    '우사짝-좌사홀-우삼홀-좌삼짝',
+    '좌삼짝-좌삼짝-우삼홀-우사짝',
     '좌삼짝-우삼홀-좌사홀-우사짝',
 ]
 
-# 빈도수 분석
-pattern_counter = Counter(past_patterns)
-top_patterns = pattern_counter.most_common(3)
+# 각 항목별로 쪼개서 분리
+slots = [[], [], [], []]  # 0: 첫 번째, 1: 두 번째, ...
 
-# 예측 결과 문자열 구성
-prediction_result = ""
-for idx, (pattern, count) in enumerate(top_patterns, start=1):
-    prediction_result += f"{idx}위: {pattern}"
-    if idx != len(top_patterns):
-        prediction_result += ", "
+for pattern in recent_patterns:
+    parts = pattern.split('-')
+    for i in range(4):
+        slots[i].append(parts[i])
 
-# 콘솔 출력용
-print("✅ 예측 결과:", prediction_result)
+# 각 슬롯별 최빈값 분석
+top_1 = Counter(slots[0]).most_common(1)[0][0]
+top_2 = Counter(slots[1]).most_common(1)[0][0]
+top_3 = Counter(slots[2]).most_common(1)[0][0]
+# top_4 = Counter(slots[3]).most_common(1)[0][0]  # 필요 없으면 생략
 
-# 파일 저장용
-result_data = {
-    "result": prediction_result
+# ✅ 예측 결과 출력
+print("✅ 예측 결과:")
+print(f"1위: {top_1}")
+print(f"2위: {top_2}")
+print(f"3위: {top_3}")
+
+# 💾 최신 결과 저장 (웹에서 확인용)
+latest_result = {
+    "result": f"1위: {top_1}, 2위: {top_2}, 3위: {top_3}"
 }
 
 with open("latest_result.json", "w", encoding="utf-8") as f:
-    json.dump(result_data, f, ensure_ascii=False)
+    json.dump(latest_result, f, ensure_ascii=False)
