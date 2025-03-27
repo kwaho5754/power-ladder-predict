@@ -23,12 +23,10 @@ def latest():
 @app.route('/run-predict', methods=['GET'])
 def run_predict():
     try:
-        result = subprocess.run(['python3', 'auto_predict.py'], capture_output=True, text=True)
+        result = subprocess.run(['python', 'auto_predict.py'], capture_output=True, text=True)
         return f"<pre>{result.stdout}</pre>"
     except Exception as e:
-    import traceback
-    traceback.print_exc()
-    return f"<p>예측 실행 중 오류 발생: {str(e)}</p>"
+        return f"<p>예측 실행 중 오류 발생: {str(e)}</p>"
 
 if __name__ == '__main__':
     app.run(debug=True)
