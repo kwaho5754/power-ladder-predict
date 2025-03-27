@@ -33,7 +33,7 @@ except Exception as e:
 # ▶ 서비스 계정 키 환경변수 로드
 credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_CONTENT")
 if not credentials_json:
-    raise ValueError("환경변수 GOOGLE_APPLICATION_CREDENTIALS_CONTENT 없음")
+print("⚠️ 환경변수 GOOGLE_APPLICATION_CREDENTIALS_CONTENT 없음 - 시트 저장은 생략됩니다.")  
 
 info = json.loads(credentials_json)
 scopes = [
