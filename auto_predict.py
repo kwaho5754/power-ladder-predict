@@ -1,63 +1,36 @@
-import os
 import json
-import requests
-from datetime import datetime
-import gspread
-from google.oauth2.service_account import Credentials
+from collections import Counter
 
-# ▶ 시간 자동 설정
-now = datetime.now()
-round_str = now.strftime("%Y-%m-%d-%H")
-time_str = now.strftime("%H:%M")
+# 예시 데이터 (실제에서는 크롤링이나 DB에서 불러오도록 구성 가능)
+# 형식: ['좌삼짝-우삼홀-좌사홀-우사짝', ...]
+past_patterns = [
+    '좌삼짝-우삼홀-좌사홀-우사짝',
+    '좌삼짝-우삼홀-좌사홀-우사짝',
+    '우삼홀-좌삼짝-우사짝-좌사홀',
+    '좌삼짝-우삼홀-좌사홀-우사짝',
+    '우삼홀-좌삼짝-우사짝-좌사홀',
+    '좌삼짝-우삼홀-좌사홀-우사짝',
+    '좌삼짝-우삼홀-좌사홀-우사짝',
+]
 
-# ▶ API 요청을 위한 데이터 구성
-payload = {
-    "round": round_str,
-    "time": time_str,
-    "좌삼짝": "짝",
-    "우삼홀": "홀",
-    "좌사홀": "홀",
-    "우사짝": "짝"
+# 빈도수 분석
+pattern_counter = Counter(past_patterns)
+top_patterns = pattern_counter.most_common(3)
+
+# 예측 결과 문자열 구성
+prediction_result = ""
+for idx, (pattern, count) in enumerate(top_patterns, start=1):
+    prediction_result += f"{idx}위: {pattern}"
+    if idx != len(top_patterns):
+        prediction_result += ", "
+
+# 콘솔 출력용
+print("✅ 예측 결과:", prediction_result)
+
+# 파일 저장용
+result_data = {
+    "result": prediction_result
 }
 
-# ▶ API 요청
-try:
-    response = requests.post("https://power-ladder-predict.onrender.com/predict", json=payload)
-    result = response.json()["result"]
-    print("✅ 예측 결과:", result)
-except Exception as e:
-    print("❌ 예측 API 오류:", e)
-    print("응답 내용:", response.text)
-    exit(1)
-
-# ▶ 서비스 계정 키 환경변수 로드
-credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_CONTENT")
-if not credentials_json:
-print("⚠️ 환경변수 GOOGLE_APPLICATION_CREDENTIALS_CONTENT 없음 - 시트 저장은 생략됩니다.")  
-
-info = json.loads(credentials_json)
-scopes = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
-credentials = Credentials.from_service_account_info(info, scopes=scopes)
-gc = gspread.authorize(credentials)
-
-# ▶ 시트 열기
-spreadsheet_id = "1SyxM-7xx9miEdbYYxhp69YP9tRLHRA4BQpNOr1O9Q-o"
-sheet = gc.open_by_key(spreadsheet_id).worksheet("예측결과")
-
-# ▶ 시트에 결과 추가
-values = [[
-    payload["round"],
-    payload["time"],
-    payload["좌삼짝"],
-    payload["우삼홀"],
-    payload["좌사홀"],
-    payload["우사짝"],
-    result.split(",")[0].split(":")[1].strip(),
-    result.split(",")[1].split(":")[1].strip(),
-    result.split(",")[2].split(":")[1].strip()
-]]
-sheet.append_rows(values, value_input_option="RAW")
-print("📌 Google Sheets에 저장 완료")
+with open("latest_result.json", "w", encoding="utf-8") as f:
+    json.dump(result_data, f, ensure_ascii=False)

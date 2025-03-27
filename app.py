@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import subprocess
 import json
+import traceback
 
 app = Flask(__name__)
 
@@ -14,7 +15,7 @@ def latest():
         with open('latest_result.json', 'r', encoding='utf-8') as f:
             result = json.load(f)
         return f"""
-        <h2>📊 최신 예측 결과</h2>
+        <h2>📌 최신 예측 결과</h2>
         <p>{result['result']}</p>
         """
     except FileNotFoundError:
@@ -24,7 +25,10 @@ def latest():
 def run_predict():
     try:
         result = subprocess.run(['python', 'auto_predict.py'], capture_output=True, text=True)
-        return f"<pre>{result.stdout}</pre>"
+        return f"""
+        <h2>✅ 예측 실행 완료</h2>
+        <pre>{result.stdout}</pre>
+        """
     except Exception as e:
         return f"<p>예측 실행 중 오류 발생: {str(e)}</p>"
 
