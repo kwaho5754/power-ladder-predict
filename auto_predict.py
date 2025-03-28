@@ -1,50 +1,47 @@
-
+import pandas as pd
 import json
 from collections import Counter
-import pandas as pd
-from scrape_latest_result import scrape_latest_result
 
-# 🔹 CSV 파일에서 과거 데이터 불러오기
-df = pd.read_csv("powerladder_data.csv")
+def run_prediction():
+    # CSV 파일 불러오기
+    df = pd.read_csv("powerladder_data.csv")
 
-# 🔹 각 행을 하나의 조합 문자열로 변환
-df["조합"] = df[["좌삼짝", "우삼홀", "좌사홀", "우사짝"]].agg("-".join, axis=1)
+    # 필요한 열만 사용
+    required_columns = ['좌삼짝', '우삼홀', '좌사홀', '우사짝']
+    if not all(col in df.columns for col in required_columns):
+        raise ValueError("CSV 파일에 필요한 열이 없습니다.")
 
-# 🔹 조합별 빈도수 세기
-counter = Counter(df["조합"])
+    # 최근 200회 데이터 사용
+    recent_df = df[required_columns].tail(200)
 
-# 🔹 상위 3개 조합 가져오기
-top_3 = counter.most_common(3)
+    # 조합 문자열 생성 (예: '좌삼짝-우삼홀-좌사홀-우사짝')
+    recent_df["조합"] = recent_df[required_columns].agg("-".join, axis=1)
 
-# 🔹 조합 문자열 분해하여 1위, 2위, 3위로 저장
-top_predictions = []
-for rank, (combo, _) in enumerate(top_3, start=1):
-    parts = combo.split("-")
-    if parts:
-        top_predictions.append(parts[0])
-    else:
-        top_predictions.append("")
+    # 조합별 빈도수 계산
+    counter = Counter(recent_df["조합"])
 
-# 🔹 최신 회차 정보 불러오기
-latest_round_number = scrape_latest_result()
+    # 가장 많이 등장한 상위 3개 조합 추출
+    top_3 = counter.most_common(3)
 
-# 🔹 예측 결과 콘솔 출력
-print("✅ 예측 실행 완료")
-print(f"🕓 현재 회차: {latest_round_number}")
-print("📊 예측 결과:")
-print(f"1위: {top_predictions[0]}")
-print(f"2위: {top_predictions[1]}")
-print(f"3위: {top_predictions[2]}")
+    # 결과 정리: 각 조합에서 첫 번째 항목만 추출 (1위는 좌삼짝 같은 형태)
+    result_dict = {}
+    for i, (combo, count) in enumerate(top_3):
+        순위 = f"{i+1}위"
+        조합_리스트 = combo.split("-")
+        result_dict[순위] = 조합_리스트[0]
 
-# 🔹 JSON 저장 (Flask /latest에서 읽어감)
-result = {
-    "round": latest_round_number,
-    "result": {
-        "1위": top_predictions[0],
-        "2위": top_predictions[1],
-        "3위": top_predictions[2]
-    }
-}
+    # 결과를 JSON 파일로 저장
+    with open("latest_result.json", "w", encoding="utf-8") as f:
+        json.dump({"result": result_dict}, f, ensure_ascii=False)
 
-with open("latest_result.json", "w", encoding="utf-8") as f:
-    json.dump(result, f, ensure_ascii=False)
+    # 콘솔 출력
+    print("✅ 예측 결과:")
+    for rank, value in result_dict.items():
+        print(f"{rank}: {value}")
+
+    return result_dict
+
+
+# 직접 실행 시
+if __name__ == "__main__":
+    run_prediction()
