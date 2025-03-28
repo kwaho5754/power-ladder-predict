@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import subprocess
 import json
 import traceback
@@ -15,8 +15,10 @@ def latest():
         with open('latest_result.json', 'r', encoding='utf-8') as f:
             result = json.load(f)
         return f"""
-        <h2>📌 최신 예측 결과</h2>
-        <p>{result['result']}</p>
+        <h2>✅ 최신 예측 결과</h2>
+        <p>1위: {result['result']['1위']}</p>
+        <p>2위: {result['result']['2위']}</p>
+        <p>3위: {result['result']['3위']}</p>
         """
     except FileNotFoundError:
         return "<p>아직 예측 결과가 없습니다.</p>"
@@ -25,12 +27,17 @@ def latest():
 def run_predict():
     try:
         result = subprocess.run(['python', 'auto_predict.py'], capture_output=True, text=True)
+        with open('latest_result.json', 'r', encoding='utf-8') as f:
+            latest = json.load(f)
         return f"""
         <h2>✅ 예측 실행 완료</h2>
-        <pre>{result.stdout}</pre>
+        <p>예측 결과:</p>
+        <p>1위: {latest['result']['1위']}</p>
+        <p>2위: {latest['result']['2위']}</p>
+        <p>3위: {latest['result']['3위']}</p>
         """
     except Exception as e:
-        return f"<p>예측 실행 중 오류 발생: {str(e)}</p>"
+        return f"<p>❌ 예측 실행 중 오류 발생:<br>{str(e)}<br><br>{traceback.format_exc()}</p>"
 
 if __name__ == '__main__':
     app.run(debug=True)
