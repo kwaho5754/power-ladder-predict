@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import json
 import traceback
 from auto_predict import run_prediction  # 예측 함수 직접 import
@@ -16,9 +16,9 @@ def latest():
             result = json.load(f)
         return f"""
         <h2>✅ 최신 예측 결과</h2>
-        <p>1위: {result['result']['1위']}</p>
-        <p>2위: {result['result']['2위']}</p>
-        <p>3위: {result['result']['3위']}</p>
+        <p>1위: {result['result'].get('1위', '없음')}</p>
+        <p>2위: {result['result'].get('2위', '없음')}</p>
+        <p>3위: {result['result'].get('3위', '없음')}</p>
         """
     except FileNotFoundError:
         return "<p>❌ 아직 예측 결과가 없습니다.</p>"
@@ -26,16 +26,16 @@ def latest():
 @app.route('/run-predict', methods=['GET'])
 def run_predict():
     try:
-        result = run_prediction()  # 함수 직접 실행해서 결과 받아옴
+        result = run_prediction()  # 함수 직접 실행해서 결과 받기
         return f"""
         <h2>✅ 예측 실행 완료</h2>
         <p>예측 결과:</p>
-        <p>1위: {result['1위']}</p>
-        <p>2위: {result['2위']}</p>
-        <p>3위: {result['3위']}</p>
+        <p>1위: {result.get('1위', '없음')}</p>
+        <p>2위: {result.get('2위', '없음')}</p>
+        <p>3위: {result.get('3위', '없음')}</p>
         """
     except Exception as e:
         return f"<p>❌ 예측 실행 중 오류 발생:<br>{str(e)}<br><br>{traceback.format_exc()}</p>"
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
