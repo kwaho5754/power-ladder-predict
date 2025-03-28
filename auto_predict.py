@@ -14,7 +14,7 @@ def run_prediction():
     # 최근 200회 데이터 사용
     recent_df = df[required_columns].tail(200)
 
-    # 조합 문자열 만들기 (예: '좌삼짝-우삼홀-좌사홀-우사짝')
+    # 조합 문자열 생성 (예: '좌삼짝-우삼홀-좌사홀-우사짝')
     recent_df["조합"] = recent_df[required_columns].astype(str).agg("-".join, axis=1)
 
     # 조합별 빈도수 계산
@@ -23,24 +23,15 @@ def run_prediction():
     # 가장 많이 등장한 상위 3개 조합 추출
     top_3 = counter.most_common(3)
 
-    # 결과 정리 (각 조합에서 첫 번째 항목만 추출)
+    # 결과 정리: 각 조합에서 첫 번째 항목만 추출
     result_dict = {}
     for i, (combo, count) in enumerate(top_3):
         순위 = f"{i+1}위"
         조합_리스트 = combo.split("-")
-        result_dict[순위] = 조합_리스트[0]
+        result_dict[순위] = 조합_리스트[0] if len(조합_리스트) > 0 else "없음"
 
-    # 결과를 JSON 파일로 저장
+    # 결과 JSON 파일 저장
     with open("latest_result.json", "w", encoding="utf-8") as f:
         json.dump({"result": result_dict}, f, ensure_ascii=False)
 
-    # 콘솔 출력
-    print("✅ 예측 결과:")
-    for rank, value in result_dict.items():
-        print(f"{rank}: {value}")
-
     return result_dict
-
-# 직접 실행 시
-if __name__ == "__main__":
-    run_prediction()
