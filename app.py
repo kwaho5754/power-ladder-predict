@@ -1,7 +1,7 @@
-from flask import Flask, request, jsonify
-import subprocess
+from flask import Flask
 import json
 import traceback
+from auto_predict import run_prediction  # 예측 함수 직접 import
 
 app = Flask(__name__)
 
@@ -26,15 +26,13 @@ def latest():
 @app.route('/run-predict', methods=['GET'])
 def run_predict():
     try:
-        result = subprocess.run(['python', 'auto_predict.py'], capture_output=True, text=True)
-        with open('latest_result.json', 'r', encoding='utf-8') as f:
-            latest = json.load(f)
+        result = run_prediction()  # 함수 직접 실행해서 결과 받기
         return f"""
         <h2>✅ 예측 실행 완료</h2>
         <p>예측 결과:</p>
-        <p>1위: {latest['result']['1위']}</p>
-        <p>2위: {latest['result']['2위']}</p>
-        <p>3위: {latest['result']['3위']}</p>
+        <p>1위: {result['1위']}</p>
+        <p>2위: {result['2위']}</p>
+        <p>3위: {result['3위']}</p>
         """
     except Exception as e:
         return f"<p>❌ 예측 실행 중 오류 발생:<br>{str(e)}<br><br>{traceback.format_exc()}</p>"
