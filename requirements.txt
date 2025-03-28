@@ -3,3 +3,4 @@ gunicorn
 google-auth
 gspread
 oauth2client
+pandas
