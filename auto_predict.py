@@ -1,40 +1,43 @@
-import json
+import requests
+from bs4 import BeautifulSoup
 from collections import Counter
+import pandas as pd
 
-# 임의로 만든 예시 데이터: 실제로는 웹에서 수집한 결과를 여기에 넣으면 됩니다.
-recent_patterns = [
-    '좌삼짝-우삼홀-좌사홀-우사짝',
-    '우삼홀-좌삼짝-우사짝-좌사홀',
-    '좌사홀-우삼홀-좌삼짝-우사짝',
-    '우사짝-좌사홀-우삼홀-좌삼짝',
-    '좌삼짝-좌삼짝-우삼홀-우사짝',
-    '좌삼짝-우삼홀-좌사홀-우사짝',
-]
+def get_current_round():
+    try:
+        url = "https://ntry.com/scores/power_ladder/live.php"
+        response = requests.get(url)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
 
-# 각 항목별로 쪼개서 분리
-slots = [[], [], [], []]  # 0: 첫 번째, 1: 두 번째, ...
+        # 회차 정보를 추출하는 부분
+        round_tag = soup.select_one(".wrap .tit")
+        if round_tag:
+            round_text = round_tag.text.strip()
+            return round_text  # 예: "2025-03-28-274"
+        return "회차 정보 없음"
+    except Exception as e:
+        return f"회차 정보 오류: {e}"
 
-for pattern in recent_patterns:
-    parts = pattern.split('-')
-    for i in range(4):
-        slots[i].append(parts[i])
+def load_data():
+    df = pd.read_csv("powerladder_data.csv")
+    df["조합"] = df["좌삼짝"] + "-" + df["우삼홀"] + "-" + df["좌사홀"] + "-" + df["우사짝"]
+    return df
 
-# 각 슬롯별 최빈값 분석
-top_1 = Counter(slots[0]).most_common(1)[0][0]
-top_2 = Counter(slots[1]).most_common(1)[0][0]
-top_3 = Counter(slots[2]).most_common(1)[0][0]
-# top_4 = Counter(slots[3]).most_common(1)[0][0]  # 필요 없으면 생략
+def predict(df):
+    counter = Counter(df["조합"])
+    most_common = counter.most_common(3)
+    top_predictions = [x[0].split("-")[0] for x in most_common]  # 1위~3위 하나씩만
+    return top_predictions
 
-# ✅ 예측 결과 출력
-print("✅ 예측 결과:")
-print(f"1위: {top_1}")
-print(f"2위: {top_2}")
-print(f"3위: {top_3}")
+if __name__ == "__main__":
+    current_round = get_current_round()
+    df = load_data()
+    predictions = predict(df)
 
-# 💾 최신 결과 저장 (웹에서 확인용)
-latest_result = {
-    "result": f"1위: {top_1}, 2위: {top_2}, 3위: {top_3}"
-}
-
-with open("latest_result.json", "w", encoding="utf-8") as f:
-    json.dump(latest_result, f, ensure_ascii=False)
+    print("✅ 예측 실행 완료")
+    print(f"🕓 현재 회차: {current_round}")
+    print("🎯 예측 결과:")
+    print(f"1위: {predictions[0]}")
+    print(f"2위: {predictions[1]}")
+    print(f"3위: {predictions[2]}")
