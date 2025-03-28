@@ -21,12 +21,12 @@ def latest():
         <p>3위: {result['result']['3위']}</p>
         """
     except FileNotFoundError:
-        return "<p>아직 예측 결과가 없습니다.</p>"
+        return "<p>❌ 아직 예측 결과가 없습니다.</p>"
 
 @app.route('/run-predict', methods=['GET'])
 def run_predict():
     try:
-        result = run_prediction()  # 함수 직접 실행해서 결과 받기
+        result = run_prediction()  # 함수 직접 실행해서 결과 받아옴
         return f"""
         <h2>✅ 예측 실행 완료</h2>
         <p>예측 결과:</p>
@@ -37,5 +37,5 @@ def run_predict():
     except Exception as e:
         return f"<p>❌ 예측 실행 중 오류 발생:<br>{str(e)}<br><br>{traceback.format_exc()}</p>"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
