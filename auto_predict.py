@@ -1,53 +1,54 @@
 import pandas as pd
 import json
 from collections import Counter
+import requests
+from bs4 import BeautifulSoup
 
-# 상수 정의
-CSV_FILE = "powerladder_data.csv"
-JSON_FILE = "latest_result.json"
-REQUIRED_COLUMNS = ['좌삼짝', '우삼홀', '좌사홀', '우사짝']
+def get_current_round():
+    try:
+        url = "https://ntry.com/scores/power_ladder/live.php"
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        round_element = soup.select_one(".ladder_num span")
+        if round_element:
+            return round_element.text.strip()
+    except Exception as e:
+        print("⚠️ 회차 불러오기 실패:", e)
+    return "알 수 없음"
 
 def run_prediction():
     # CSV 파일 불러오기
-    df = pd.read_csv(CSV_FILE)
-    print("✅ CSV 파일 불러오기 완료")
+    df = pd.read_csv("powerladder_data.csv")
 
-    # 필요한 열 존재 확인
-    if not all(col in df.columns for col in REQUIRED_COLUMNS):
+    # 필요한 열
+    required_columns = ['좌삼짝', '우삼홀', '좌사홀', '우사짝']
+    if not all(col in df.columns for col in required_columns):
         raise ValueError("CSV 파일에 필요한 열이 없습니다.")
 
-    # 최근 200회 데이터만 사용
-    recent_df = df[REQUIRED_COLUMNS].tail(200)
+    # 최근 200회 기준
+    recent_df = df[required_columns].tail(200)
 
-    # 조합 열 생성 (숫자형을 문자열로 변환하여 join)
-    recent_df["조합"] = recent_df[REQUIRED_COLUMNS].astype(str).agg("-".join, axis=1)
+    # 조합 문자열 생성 (문자열 변환 후 결합)
+    recent_df["조합"] = recent_df[required_columns].astype(str).agg("-".join, axis=1)
 
-    # 조합별 빈도수 계산
+    # 빈도수 계산
     counter = Counter(recent_df["조합"])
 
-    # 상위 3개 조합 추출
+    # 가장 많이 나온 상위 3개
     top_3 = counter.most_common(3)
 
-    # 결과 정리 (첫 번째 항목만 추출)
+    # 조합에서 첫 번째 항목만 추출
     result_dict = {}
     for i, (combo, _) in enumerate(top_3):
-        순위 = f"{i+1}위"
-        조합_리스트 = combo.split("-")
-        result_dict[순위] = 조합_리스트[0] if len(조합_리스트) > 0 else "없음"
+        rank = f"{i+1}위"
+        parts = combo.split("-")
+        result_dict[rank] = parts[0] if len(parts) > 0 else "없음"
 
-    # 부족한 경우 '없음'으로 채움
-    for i in range(len(result_dict) + 1, 4):
-        result_dict[f"{i}위"] = "없음"
+    # 회차 정보 추가
+    result_dict["회차"] = get_current_round()
 
-    # 결과 출력
-    print("✅ 예측 결과:", result_dict)
-
-    # JSON 파일 저장
-    with open(JSON_FILE, "w", encoding="utf-8") as f:
+    # JSON 저장
+    with open("latest_result.json", "w", encoding="utf-8") as f:
         json.dump({"result": result_dict}, f, ensure_ascii=False)
 
     return result_dict
-
-# 디버깅 시 단독 실행 가능
-if __name__ == "__main__":
-    run_prediction()
